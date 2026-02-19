@@ -1,386 +1,1222 @@
-<!doctype html><html lang="en"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Train Status, PNR Check &#x26; Food Delivery on Train | TrackBlink</title>
-    <meta name="description" content="Track live train status, check PNR prediction, set real-time station alerts, and order hygienic food directly to your seat. The ultimate railway companion.">
-    <link rel="canonical" href="https://example.com/">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Live Train Status, PNR Check &#x26; Food Delivery on Train | TrackBlink">
-    <meta property="og:description" content="Track live train status, check PNR prediction, set real-time station alerts, and order hygienic food directly to your seat.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://example.com/">
-    <meta property="og:image" content="https://example.com/og-image.jpg">
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Live Train Status &#x26; Food Delivery | TrackBlink">
-    <meta name="twitter:description" content="Real-time train tracking, PNR status, and food delivery on train.">
-    <meta name="twitter:image" content="https://example.com/twitter-image.jpg">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrackBlink – Real-Time Train Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather+Sans:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #FF6B00;
+      --orange-light: #FF8C2A;
+      --orange-pale: rgba(255,107,0,0.10);
+      --green: #00A850;
+      --green-light: #00C860;
+      --green-pale: rgba(0,168,80,0.10);
+      --white: #FFFFFF;
+      --bg: #F4FAF5;
+      --card-bg: #FFFFFF;
+      --card-border: rgba(0,168,80,0.14);
+      --text: #132210;
+      --muted: #5A7060;
+      --radius: 20px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── SUBTLE LEAF PATTERN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,168,80,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1.5px solid rgba(0,168,80,0.12);
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon { width: 44px; height: 44px; flex-shrink: 0; }
+
+    .logo-text {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .logo-text span { color: var(--orange); }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: .9rem;
+      letter-spacing: .5px;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--green); }
+
+    .nav-cta {
+      background: var(--orange) !important;
+      color: #fff !important;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 700 !important;
+      transition: transform .2s, box-shadow .2s !important;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,0,.38); color: #fff !important; }
+
+    .nav-download {
+      background: var(--green) !important;
+      color: #fff !important;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 700 !important;
+      transition: transform .2s, box-shadow .2s !important;
+    }
+    .nav-download:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,168,80,.38); color: #fff !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, #EDFBF1 0%, #FFF8F2 60%, #F4FAF5 100%);
+    }
+
+    /* Animated gradient blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: .30;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 520px; height: 520px; background: var(--green); top: -120px; left: -180px; animation-delay: 0s; }
+    .blob-2 { width: 420px; height: 420px; background: var(--orange); top: 55%; right: -120px; animation-delay: 2s; }
+    .blob-3 { width: 360px; height: 360px; background: #9EF5C0; bottom: -100px; left: 28%; animation-delay: 4s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,168,80,.10);
+      border: 1.5px solid rgba(0,168,80,.30);
+      color: var(--green);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeUp .8s ease both;
+    }
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: var(--orange);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.7); }
+    }
+
+    .hero h1 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      max-width: 900px;
+      color: var(--text);
+      animation: fadeUp .9s .1s ease both;
+    }
+    .hero h1 .highlight {
+      -webkit-text-fill-color: transparent;
+      background: linear-gradient(135deg, var(--green), var(--orange));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero p {
+      max-width: 560px;
+      margin: 24px auto 40px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      animation: fadeUp 1s .2s ease both;
+    }
+
+    .hero-btns {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 1s .3s ease both;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 32px rgba(0,168,80,.32);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,168,80,.48); }
+
+    .btn-secondary {
+      background: var(--white);
+      border: 2px solid var(--green);
+      color: var(--green);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background .2s, transform .2s, color .2s;
+    }
+    .btn-secondary:hover { background: var(--green); color: #fff; transform: translateY(-3px); }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--orange), var(--orange-light));
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background .2s, transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 32px rgba(255,107,0,.32);
+    }
+    .btn-download:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(255,107,0,.48); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TRAIN TRACK ANIMATION ── */
+    .train-scene {
+      width: 100%;
+      margin-top: 64px;
+      position: relative;
+      height: 90px;
+      overflow: hidden;
+      animation: fadeUp 1s .5s ease both;
+    }
+
+    /* Rails SVG fills full width */
+    .train-scene svg.track-svg {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* Train wrapper slides across */
+    .train-wrapper {
+      position: absolute;
+      bottom: 18px;
+      left: -260px;
+      width: 240px;
+      height: 68px;
+      animation: trainRun 5s linear infinite;
+      filter: drop-shadow(0 6px 18px rgba(255,107,0,.35));
+    }
+
+    @keyframes trainRun {
+      0%   { left: -260px; }
+      100% { left: calc(100% + 20px); }
+    }
+
+    /* Smoke puffs */
+    .smoke {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(180,220,180,0.55);
+      animation: smokeDrift 1.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .smoke-1 { width: 14px; height: 14px; top: 0px;  left: 24px; animation-delay: 0s; }
+    .smoke-2 { width: 10px; height: 10px; top: -4px; left: 30px; animation-delay: .35s; }
+    .smoke-3 { width: 8px;  height: 8px;  top: -2px; left: 18px; animation-delay: .7s; }
+
+    @keyframes smokeDrift {
+      0%   { transform: translateY(0) scale(1);   opacity: .7; }
+      100% { transform: translateY(-30px) scale(2.2); opacity: 0; }
+    }
+
+    /* Wheel spin */
+    .wheel-spin {
+      animation: wheelSpin 0.6s linear infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    @keyframes wheelSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── STATS STRIP (unused but kept for CSS completeness) ── */
+    .stats {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+      border-top: 1.5px solid rgba(0,168,80,0.10);
+      border-bottom: 1.5px solid rgba(0,168,80,0.10);
+      position: relative; z-index: 1;
+      background: var(--white);
+    }
+    .stat-item {
+      flex: 1; min-width: 180px;
+      padding: 40px 32px;
+      text-align: center;
+      border-right: 1.5px solid rgba(0,168,80,0.10);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--green), var(--orange));
+      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .stat-label { color: var(--muted); font-size: .85rem; font-weight: 600; margin-top: 6px; letter-spacing: .5px; }
+
+    /* ── SERVICES SECTION ── */
+    section { position: relative; z-index: 1; }
+
+    .services {
+      padding: 100px 60px;
+      background: var(--white);
+    }
+    .section-label {
+      display: inline-block;
+      color: var(--green);
+      font-weight: 800;
+      font-size: .8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      max-width: 640px;
+      margin-bottom: 60px;
+      color: var(--text);
+    }
+    .section-title em { font-style: normal; color: var(--orange); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .service-card {
+      background: var(--bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+      cursor: default;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity .35s;
+    }
+    .service-card.orange::before { background: radial-gradient(circle at top left, rgba(255,107,0,.10), transparent 70%); }
+    .service-card.yellow::before { background: radial-gradient(circle at top left, rgba(0,168,80,.10), transparent 70%); }
+    .service-card.green::before  { background: radial-gradient(circle at top left, rgba(0,168,80,.10), transparent 70%); }
+    .service-card.blue::before   { background: radial-gradient(circle at top left, rgba(255,107,0,.10), transparent 70%); }
+
+    .service-card:hover { transform: translateY(-6px); border-color: var(--green); box-shadow: 0 16px 48px rgba(0,168,80,.12); }
+    .service-card:hover::before { opacity: 1; }
+
+    .card-icon {
+      width: 60px; height: 60px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 24px;
+    }
+    .orange .card-icon { background: rgba(255,107,0,.12); }
+    .yellow .card-icon { background: rgba(0,168,80,.12); }
+    .green  .card-icon { background: rgba(0,168,80,.12); }
+    .blue   .card-icon { background: rgba(255,107,0,.12); }
+
+    .card-tag {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 14px;
+    }
+    .orange .card-tag { background: rgba(255,107,0,.12); color: var(--orange); }
+    .yellow .card-tag { background: rgba(0,168,80,.12); color: var(--green); }
+    .green  .card-tag { background: rgba(0,168,80,.12); color: var(--green); }
+    .blue   .card-tag { background: rgba(255,107,0,.12); color: var(--orange); }
+
+    .service-card h3 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .service-card p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: .95rem;
+    }
+
+    .card-arrow {
+      position: absolute;
+      bottom: 28px; right: 28px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: #fff;
+      opacity: 0;
+      transform: translate(4px, 4px);
+      transition: opacity .3s, transform .3s;
+    }
+    .orange .card-arrow { background: var(--orange); }
+    .yellow .card-arrow { background: var(--green); }
+    .green  .card-arrow { background: var(--green); }
+    .blue   .card-arrow { background: var(--orange); }
+    .service-card:hover .card-arrow { opacity: 1; transform: translate(0, 0); }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      padding: 100px 60px;
+      background: linear-gradient(160deg, #EDFBF1 0%, #FFF8F2 100%);
+    }
+
+    .steps {
+      display: flex; gap: 0; position: relative;
+      margin-top: 60px;
+      counter-reset: step;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--orange), var(--green), var(--orange));
+      border-radius: 3px;
+      z-index: 0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-num {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 auto 28px;
+      border: 2.5px solid;
+      background: var(--white);
+    }
+    .step:nth-child(1) .step-num { border-color: var(--green);  color: var(--green); }
+    .step:nth-child(2) .step-num { border-color: var(--orange); color: var(--orange); }
+    .step:nth-child(3) .step-num { border-color: var(--green);  color: var(--green); }
+    .step:nth-child(4) .step-num { border-color: var(--orange); color: var(--orange); }
+
+    .step h4 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .step p { color: var(--muted); font-size: .88rem; line-height: 1.6; }
+
+    /* ── PNR CHECKER ── */
+    .pnr-section {
+      padding: 80px 60px;
+      background: var(--white);
+    }
+    .pnr-box {
+      background: linear-gradient(135deg, #EDFBF1, #FFF8F2);
+      border: 2px solid rgba(0,168,80,.18);
+      border-radius: 28px;
+      padding: 60px;
+      display: flex; align-items: center; gap: 60px;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .pnr-box::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: var(--green);
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: .08;
+    }
+    .pnr-content { flex: 1; min-width: 280px; }
+    .pnr-content h2 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .pnr-content p { color: var(--muted); line-height: 1.7; margin-bottom: 0; }
+
+    .pnr-form { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 14px; }
+    .pnr-input {
+      background: var(--white);
+      border: 1.5px solid rgba(0,168,80,.25);
+      border-radius: 14px;
+      padding: 16px 22px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .pnr-input:focus { border-color: var(--green); }
+    .pnr-input::placeholder { color: var(--muted); }
+
+    .pnr-btn {
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 24px rgba(0,168,80,.30);
+    }
+    .pnr-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,168,80,.45); }
+
+    /* ── FOOD SECTION ── */
+    .food-section {
+      padding: 100px 60px;
+      background: var(--bg);
+    }
+    .food-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 60px;
+    }
+    .food-hero-card {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      background: linear-gradient(135deg, rgba(0,168,80,.12), rgba(255,107,0,.08));
+      border: 2px solid rgba(0,168,80,.20);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      min-height: 360px;
+      position: relative;
+      overflow: hidden;
+    }
+    .food-hero-card .food-emoji {
+      position: absolute;
+      top: 30px; right: 30px;
+      font-size: 5rem;
+      opacity: .45;
+    }
+    .food-hero-card h3 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .food-hero-card p { color: var(--muted); line-height: 1.7; }
+
+    .food-mini-card {
+      background: var(--white);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex; align-items: center; gap: 20px;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+    }
+    .food-mini-card:hover { transform: translateY(-4px); border-color: var(--orange); box-shadow: 0 12px 32px rgba(255,107,0,.10); }
+    .food-mini-icon {
+      font-size: 2.4rem;
+      flex-shrink: 0;
+      width: 64px; height: 64px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,168,80,.10);
+      border-radius: 14px;
+    }
+    .food-mini-card h4 { font-family: 'Merriweather Sans', sans-serif; font-size: 1rem; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+    .food-mini-card p { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+
+    /* ── CONTACT ── */
+    .contact {
+      padding: 100px 60px;
+      background: linear-gradient(160deg, #EDFBF1 0%, #FFF8F2 100%);
+      border-top: 2px solid rgba(0,168,80,.12);
+    }
+    .contact-inner {
+      display: flex; gap: 80px; flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .contact-info { flex: 1; min-width: 280px; }
+    .contact-info h2 {
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .contact-info p { color: var(--muted); line-height: 1.7; margin-bottom: 36px; max-width: 400px; }
+
+    .contact-detail {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .contact-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .contact-icon.mail { background: rgba(255,107,0,.14); }
+    .contact-icon.phone { background: rgba(0,168,80,.14); }
+    .contact-detail-text span { display: block; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .contact-detail-text a { color: var(--text); font-weight: 700; text-decoration: none; transition: color .2s; }
+    .contact-detail-text a:hover { color: var(--green); }
+
+    .contact-form-wrap { flex: 1; min-width: 280px; }
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-field {
+      background: var(--white);
+      border: 1.5px solid rgba(0,168,80,.20);
+      border-radius: 14px;
+      padding: 16px 22px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: .95rem;
+      font-weight: 600;
+      outline: none;
+      width: 100%;
+      transition: border-color .2s;
+      resize: none;
+    }
+    .form-field:focus { border-color: var(--orange); }
+    .form-field::placeholder { color: var(--muted); }
+    textarea.form-field { height: 120px; }
+
+    .form-submit {
+      background: linear-gradient(135deg, var(--orange), var(--orange-light));
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 24px rgba(255,107,0,.28);
+    }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(255,107,0,.42); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px 60px;
+      background: var(--text);
+      border-top: 3px solid var(--green);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    footer p { color: rgba(255,255,255,.5); font-size: .85rem; }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .85rem; font-weight: 600; transition: color .2s; }
+    .footer-links a:hover { color: var(--green); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .services, .how, .pnr-section, .food-section, .contact { padding: 70px 24px; }
+      .food-grid { grid-template-columns: 1fr; }
+      .food-hero-card { grid-column: auto; grid-row: auto; }
+      .steps { flex-direction: column; gap: 40px; }
+      .steps::before { display: none; }
+      .pnr-box { padding: 36px 28px; }
+      footer { padding: 30px 24px; flex-direction: column; text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+<body>
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-            <div class="flex items-center gap-2">
-                <i data-lucide="train-front" class="h-6 w-6 text-blue-600"></i>
-                <span class="text-xl font-bold tracking-tight text-slate-900">TrackBlink</span>
-            </div>
-            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-                <a href="#features" class="hover:text-blue-600 transition-colors">Live Status</a>
-                <a href="#food" class="hover:text-blue-600 transition-colors">Order Food</a>
-                <a href="#pnr" class="hover:text-blue-600 transition-colors">PNR Status</a>
-                <a href="#tickets" class="hover:text-blue-600 transition-colors">Platform Tickets</a>
-            </nav>
-            <div class="flex items-center gap-4">
-                <a href="#login" class="hidden sm:inline-flex text-sm font-medium text-slate-600 hover:text-slate-900">Log in</a>
-                <a href="#download" class="inline-flex h-9 items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-700">
-                    Get App
-                </a>
-            </div>
-        </div>
-    </header>
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#" class="logo">
+      <!-- SVG Logo v2: Location pin fused with signal waves — Green & Orange -->
+      <svg class="logo-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lgGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00A850"/>
+            <stop offset="1" stop-color="#00C860"/>
+          </linearGradient>
+          <linearGradient id="pinGrad" x1="14" y1="8" x2="30" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#C2F0D8"/>
+          </linearGradient>
+        </defs>
+        <!-- Background rounded square -->
+        <rect width="44" height="44" rx="12" fill="url(#lgGrad)"/>
+        <!-- Location pin shape -->
+        <path d="M22 7C17.03 7 13 11.03 13 16C13 22.5 22 37 22 37C22 37 31 22.5 31 16C31 11.03 26.97 7 22 7Z" fill="url(#pinGrad)"/>
+        <!-- Pin inner circle (orange hole) -->
+        <circle cx="22" cy="16" r="4" fill="#FF6B00"/>
+        <!-- Signal wave arcs top-right -->
+        <path d="M28.5 9.5 Q33 13 33 18" stroke="rgba(255,255,255,0.55)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M30.5 7 Q37 12 37 20" stroke="rgba(255,255,255,0.30)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <!-- Blink dot indicator — orange -->
+        <circle cx="35" cy="10" r="4" fill="#FF6B00"/>
+        <circle cx="35" cy="10" r="2.2" fill="#fff"/>
+      </svg>
+      <span class="logo-text">Track<span>Blink</span></span>
+    </a>
 
-    <!-- Main Content -->
-    <main class="flex-1"><section class="relative bg-white pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden">
-  <div class="container mx-auto px-4">
-    <div class="flex flex-col lg:flex-row items-center gap-12">
-      <div class="w-full lg:w-1/2 text-center lg:text-left">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-          Live Train Tracking &#x26; <span class="text-blue-600">Food Delivery</span> in One App
-        </h1>
-        <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0">
-          Check PNR status, get real-time arrival alerts, and order hygienic meals directly to your seat. The smartest way to travel by rail.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-          <a href="#" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
-            Download App
-          </a>
-          <a href="#" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-all">
-            Check PNR Status
-          </a>
-        </div>
-        <div class="mt-8 flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-500">
-          <div class="flex items-center gap-2">
-            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
-            <span>GPS Accuracy</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
-            <span>Instant Alerts</span>
-          </div>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#how">How it Works</a></li>
+      <li><a href="#food">Food</a></li>
+      <li><a href="#pnr">PNR</a></li>
+      <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+      <li><a href="#" class="nav-download">⬇ Download App</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Never Miss Your Train Again !
+    </div>
+
+    <h1>Your Train Journey,<br><span class="highlight">Perfectly Connected.</span></h1>
+    <p>Real-time tracking, smart alerts, hygienic food ordering and instant PNR checks — all in one place. Travel smarter with TrackBlink.</p>
+
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">🔔 Set Boarding Station Alerts</a>
+      <a href="#pnr" class="btn-secondary">🎫 Check PNR Status</a>
+    </div>
+
+    <div class="train-scene">
+
+      <!-- RAILS: two horizontal lines with sleepers -->
+      <svg class="track-svg" viewBox="0 0 1200 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rail 1 (top) -->
+        <rect x="0" y="52" width="1200" height="5" rx="2.5" fill="#00A850" opacity="0.7"/>
+        <!-- Rail 2 (bottom) -->
+        <rect x="0" y="66" width="1200" height="5" rx="2.5" fill="#00A850" opacity="0.7"/>
+        <!-- Sleepers (ties) repeating -->
+        <g fill="#5A7060" opacity="0.45">
+          <rect x="0"   y="49" width="18" height="24" rx="3"/>
+          <rect x="36"  y="49" width="18" height="24" rx="3"/>
+          <rect x="72"  y="49" width="18" height="24" rx="3"/>
+          <rect x="108" y="49" width="18" height="24" rx="3"/>
+          <rect x="144" y="49" width="18" height="24" rx="3"/>
+          <rect x="180" y="49" width="18" height="24" rx="3"/>
+          <rect x="216" y="49" width="18" height="24" rx="3"/>
+          <rect x="252" y="49" width="18" height="24" rx="3"/>
+          <rect x="288" y="49" width="18" height="24" rx="3"/>
+          <rect x="324" y="49" width="18" height="24" rx="3"/>
+          <rect x="360" y="49" width="18" height="24" rx="3"/>
+          <rect x="396" y="49" width="18" height="24" rx="3"/>
+          <rect x="432" y="49" width="18" height="24" rx="3"/>
+          <rect x="468" y="49" width="18" height="24" rx="3"/>
+          <rect x="504" y="49" width="18" height="24" rx="3"/>
+          <rect x="540" y="49" width="18" height="24" rx="3"/>
+          <rect x="576" y="49" width="18" height="24" rx="3"/>
+          <rect x="612" y="49" width="18" height="24" rx="3"/>
+          <rect x="648" y="49" width="18" height="24" rx="3"/>
+          <rect x="684" y="49" width="18" height="24" rx="3"/>
+          <rect x="720" y="49" width="18" height="24" rx="3"/>
+          <rect x="756" y="49" width="18" height="24" rx="3"/>
+          <rect x="792" y="49" width="18" height="24" rx="3"/>
+          <rect x="828" y="49" width="18" height="24" rx="3"/>
+          <rect x="864" y="49" width="18" height="24" rx="3"/>
+          <rect x="900" y="49" width="18" height="24" rx="3"/>
+          <rect x="936" y="49" width="18" height="24" rx="3"/>
+          <rect x="972" y="49" width="18" height="24" rx="3"/>
+          <rect x="1008" y="49" width="18" height="24" rx="3"/>
+          <rect x="1044" y="49" width="18" height="24" rx="3"/>
+          <rect x="1080" y="49" width="18" height="24" rx="3"/>
+          <rect x="1116" y="49" width="18" height="24" rx="3"/>
+          <rect x="1152" y="49" width="18" height="24" rx="3"/>
+          <rect x="1188" y="49" width="18" height="24" rx="3"/>
+        </g>
+      </svg>
+
+      <!-- TRAIN: SVG locomotive + 2 carriages -->
+      <div class="train-wrapper">
+        <!-- Smoke puffs from chimney -->
+        <div class="smoke smoke-1"></div>
+        <div class="smoke smoke-2"></div>
+        <div class="smoke smoke-3"></div>
+
+        <svg viewBox="0 0 240 68" fill="none" xmlns="http://www.w3.org/2000/svg" width="240" height="68">
+          <defs>
+            <linearGradient id="engBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF8C2A"/>
+              <stop offset="100%" stop-color="#FF6B00"/>
+            </linearGradient>
+            <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00C860"/>
+              <stop offset="100%" stop-color="#00A850"/>
+            </linearGradient>
+            <linearGradient id="carBody2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2ED878"/>
+              <stop offset="100%" stop-color="#00B858"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ═══ CARRIAGE 2 (rear) ═══ -->
+          <rect x="160" y="14" width="76" height="34" rx="5" fill="url(#carBody2)"/>
+          <!-- White stripe -->
+          <rect x="160" y="30" width="76" height="5" fill="rgba(255,255,255,0.25)"/>
+          <!-- Windows -->
+          <rect x="168" y="18" width="14" height="10" rx="2" fill="rgba(255,255,255,0.80)"/>
+          <rect x="188" y="18" width="14" height="10" rx="2" fill="rgba(255,255,255,0.80)"/>
+          <rect x="208" y="18" width="14" height="10" rx="2" fill="rgba(255,255,255,0.80)"/>
+          <!-- Undercarriage -->
+          <rect x="162" y="46" width="72" height="6" rx="2" fill="rgba(0,0,0,0.2)"/>
+          <!-- Wheels -->
+          <circle cx="180" cy="56" r="9" fill="#132210" class="wheel-spin"/>
+          <circle cx="180" cy="56" r="5" fill="#00A850"/>
+          <circle cx="180" cy="56" r="2" fill="#fff"/>
+          <line x1="180" y1="47" x2="180" y2="65" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:180px 56px"/>
+          <line x1="171" y1="56" x2="189" y2="56" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:180px 56px"/>
+          <circle cx="220" cy="56" r="9" fill="#132210" class="wheel-spin"/>
+          <circle cx="220" cy="56" r="5" fill="#00A850"/>
+          <circle cx="220" cy="56" r="2" fill="#fff"/>
+          <line x1="220" y1="47" x2="220" y2="65" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:220px 56px"/>
+          <line x1="211" y1="56" x2="229" y2="56" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:220px 56px"/>
+          <!-- Coupler -->
+          <rect x="234" y="30" width="6" height="6" rx="1" fill="#132210"/>
+
+          <!-- ═══ CARRIAGE 1 (front) ═══ -->
+          <rect x="82" y="12" width="80" height="36" rx="5" fill="url(#carBody)"/>
+          <!-- White stripe -->
+          <rect x="82" y="29" width="80" height="5" fill="rgba(255,255,255,0.25)"/>
+          <!-- Windows -->
+          <rect x="90"  y="16" width="14" height="11" rx="2" fill="rgba(255,255,255,0.85)"/>
+          <rect x="110" y="16" width="14" height="11" rx="2" fill="rgba(255,255,255,0.85)"/>
+          <rect x="130" y="16" width="14" height="11" rx="2" fill="rgba(255,255,255,0.85)"/>
+          <!-- Undercarriage -->
+          <rect x="84" y="46" width="76" height="6" rx="2" fill="rgba(0,0,0,0.2)"/>
+          <!-- Wheels -->
+          <circle cx="102" cy="56" r="9" fill="#132210" class="wheel-spin"/>
+          <circle cx="102" cy="56" r="5" fill="#00A850"/>
+          <circle cx="102" cy="56" r="2" fill="#fff"/>
+          <line x1="102" y1="47" x2="102" y2="65" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:102px 56px"/>
+          <line x1="93" y1="56" x2="111" y2="56" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:102px 56px"/>
+          <circle cx="146" cy="56" r="9" fill="#132210" class="wheel-spin"/>
+          <circle cx="146" cy="56" r="5" fill="#00A850"/>
+          <circle cx="146" cy="56" r="2" fill="#fff"/>
+          <line x1="146" y1="47" x2="146" y2="65" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:146px 56px"/>
+          <line x1="137" y1="56" x2="155" y2="56" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:146px 56px"/>
+          <!-- Coupler right -->
+          <rect x="158" y="29" width="6" height="6" rx="1" fill="#132210"/>
+
+          <!-- ═══ LOCOMOTIVE ═══ -->
+          <!-- Cab roof arch -->
+          <path d="M4 14 Q4 4 14 4 L68 4 Q76 4 78 12 L80 14 Z" fill="#CC4400"/>
+          <!-- Main body -->
+          <rect x="2" y="14" width="80" height="34" rx="4" fill="url(#engBody)"/>
+          <!-- White speed stripe -->
+          <rect x="2" y="30" width="80" height="5" fill="rgba(255,255,255,0.3)"/>
+          <!-- Cab window (front) -->
+          <rect x="10" y="17" width="18" height="12" rx="3" fill="rgba(200,240,255,0.95)" stroke="#fff" stroke-width="1"/>
+          <!-- Headlight -->
+          <circle cx="6" cy="35" r="4" fill="#FFD600" opacity="0.95"/>
+          <circle cx="6" cy="35" r="2.2" fill="#fff"/>
+          <!-- Side windows -->
+          <rect x="34" y="17" width="12" height="10" rx="2" fill="rgba(255,255,255,0.80)"/>
+          <rect x="52" y="17" width="12" height="10" rx="2" fill="rgba(255,255,255,0.80)"/>
+          <!-- Chimney -->
+          <rect x="58" y="0" width="10" height="10" rx="3" fill="#CC4400"/>
+          <rect x="55" y="0" width="16" height="4" rx="2" fill="#CC4400"/>
+          <!-- Undercarriage -->
+          <rect x="4" y="46" width="76" height="6" rx="2" fill="rgba(0,0,0,0.25)"/>
+          <!-- Cowcatcher (front wedge) -->
+          <polygon points="2,48 2,58 -8,62" fill="#CC4400"/>
+          <!-- Locomotive wheels (3 big drive wheels) -->
+          <circle cx="22" cy="56" r="10" fill="#132210" class="wheel-spin"/>
+          <circle cx="22" cy="56" r="6"  fill="#FF6B00"/>
+          <circle cx="22" cy="56" r="2.5" fill="#fff"/>
+          <line x1="22" y1="46" x2="22" y2="66" stroke="#fff" stroke-width="1.5" class="wheel-spin" style="transform-origin:22px 56px"/>
+          <line x1="12" y1="56" x2="32" y2="56" stroke="#fff" stroke-width="1.5" class="wheel-spin" style="transform-origin:22px 56px"/>
+
+          <circle cx="50" cy="56" r="10" fill="#132210" class="wheel-spin"/>
+          <circle cx="50" cy="56" r="6"  fill="#FF6B00"/>
+          <circle cx="50" cy="56" r="2.5" fill="#fff"/>
+          <line x1="50" y1="46" x2="50" y2="66" stroke="#fff" stroke-width="1.5" class="wheel-spin" style="transform-origin:50px 56px"/>
+          <line x1="40" y1="56" x2="60" y2="56" stroke="#fff" stroke-width="1.5" class="wheel-spin" style="transform-origin:50px 56px"/>
+
+          <circle cx="72" cy="58" r="7"  fill="#132210" class="wheel-spin"/>
+          <circle cx="72" cy="58" r="4"  fill="#FF6B00"/>
+          <circle cx="72" cy="58" r="2"  fill="#fff"/>
+          <line x1="72" y1="51" x2="72" y2="65" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:72px 58px"/>
+          <line x1="65" y1="58" x2="79" y2="58" stroke="#fff" stroke-width="1.2" class="wheel-spin" style="transform-origin:72px 58px"/>
+
+          <!-- Connecting rod (piston-like) -->
+          <rect x="22" y="54" width="30" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/>
+          <!-- Coupler rear -->
+          <rect x="78" y="29" width="6" height="6" rx="1" fill="#132210"/>
+        </svg>
+      </div>
+
+    </div>
+  </section>
+
+
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <span class="section-label">🌟 What We Offer</span>
+    <h2 class="section-title">Four powerful tools for <em>every</em> train traveller</h2>
+
+    <div class="services-grid">
+
+      <div class="service-card yellow">
+        <div class="card-icon">🔔</div>
+        <span class="card-tag">Smart Alerts</span>
+        <h3>Station Boarding Alerts</h3>
+        <p>Never miss your stop. Set personalised notifications for your boarding station and get timely reminders based on your train's live location, so you're always ready.</p>
+        <div class="card-arrow">→</div>
+      </div>
+
+      <div class="service-card orange">
+        <div class="card-icon">🚆</div>
+        <span class="card-tag">Live</span>
+        <h3>Real-Time Train Tracking</h3>
+        <p>Know exactly where your train is at any moment. Live GPS-based tracking with platform updates, delay alerts, and expected arrival times — updated every 30 seconds.</p>
+        <div class="card-arrow">→</div>
+      </div>
+
+      <div class="service-card green">
+        <div class="card-icon">🍱</div>
+        <span class="card-tag">Food</span>
+        <h3>Order Hygienic Food Onboard</h3>
+        <p>Enjoy chef-curated meals from our own certified, hygienic restaurants, delivered directly to your seat at your station stop. Fresh, healthy and delicious every time.</p>
+        <div class="card-arrow">→</div>
+      </div>
+
+      <div class="service-card blue">
+        <div class="card-icon">🎫</div>
+        <span class="card-tag">Instant</span>
+        <h3>PNR Status Check</h3>
+        <p>Enter your 10-digit PNR and instantly get confirmed booking details, seat allocation, coach info, train schedule and current reservation status in seconds.</p>
+        <div class="card-arrow">→</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <span class="section-label">⚡ Simple Process</span>
+    <h2 class="section-title">Set up your boarding alert in <em>four steps</em></h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Search Your Train</h4>
+        <p>Enter your train number or name to instantly pull up live journey details and real-time schedule.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Select Boarding Station</h4>
+        <p>Pick your specific boarding station from the route list. TrackBlink pinpoints its exact live distance from your train.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Configure Alert Timing</h4>
+        <p>Choose how early you want to be notified — 60, 30, or 15 minutes before arrival — and set your preferred alert mode.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Relax & Get Notified</h4>
+        <p>We monitor the train in real time and push a smart alert the moment it's time to get ready — so you never miss your stop.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PNR CHECKER -->
+  <section class="pnr-section" id="pnr">
+    <div class="pnr-box">
+      <div class="pnr-content">
+        <span class="section-label">🎫 Instant Check</span>
+        <h2>Check Your PNR Status</h2>
+        <p>Get real-time booking information, seat confirmation, and coach details — all in under 3 seconds. No login required.</p>
+      </div>
+      <div class="pnr-form">
+        <input class="pnr-input" type="text" placeholder="Enter 10-digit PNR number" maxlength="10"/>
+        <input class="pnr-input" type="text" placeholder="Your Name (Optional)"/>
+        <button class="pnr-btn">✅ Check PNR Status Now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOD SECTION -->
+  <section class="food-section" id="food">
+    <span class="section-label">🍱 Onboard Dining</span>
+    <h2 class="section-title">Eat well, travel <em>better</em></h2>
+
+    <div class="food-grid">
+      <div class="food-hero-card">
+        <div class="food-emoji">🍽️</div>
+        <span class="card-tag" style="background: rgba(0,168,80,.12); color: #00A850; font-size:.72rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; padding:4px 12px; border-radius:50px; display:inline-block; margin-bottom:16px;">Our Own Restaurants</span>
+        <h3>Hygienic, Chef-Curated Meals Delivered to Your Seat</h3>
+        <p>We own and operate our kitchens with FSSAI-certified hygiene standards, ensuring every meal is fresh, nutritious and delicious — ordered seamlessly through TrackBlink.</p>
+      </div>
+
+      <div class="food-mini-card">
+        <div class="food-mini-icon">🥗</div>
+        <div>
+          <h4>Well-Curated Menu</h4>
+          <p>Seasonal menus with North Indian, South Indian, snacks and healthy options crafted by professional chefs.</p>
         </div>
       </div>
-      <div class="w-full lg:w-1/2">
-        <div class="relative rounded-3xl bg-slate-100 p-4 lg:p-8 shadow-2xl">
-          <img data-ai="generate" data-slot="hero-app-mockup" data-prompt="Modern smartphone mockup displaying a live train tracking map interface with PNR status and food ordering options, clean UI design" data-ar="4:3" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/hero/hero-app-mockup-17e7981ff465402c8844589e12dc75f1.png" alt="App Interface Preview" width="1200" height="900" class="w-full rounded-2xl object-cover shadow-sm" loading="lazy" decoding="async" fetchpriority="auto">
+
+      <div class="food-mini-card">
+        <div class="food-mini-icon">🧾</div>
+        <div>
+          <h4>Pre-Order & Schedule</h4>
+          <p>Order hours in advance and your meal arrives hot and fresh exactly when your train reaches the delivery station.</p>
+        </div>
+      </div>
+
+      <div class="food-mini-card">
+        <div class="food-mini-icon">✅</div>
+        <div>
+          <h4>Hygiene Certified</h4>
+          <p>All our kitchens are FSSAI approved with daily quality audits. No compromise on cleanliness or freshness.</p>
         </div>
       </div>
     </div>
-  </div>
-</section><section class="py-20 bg-slate-50">
-  <div class="container mx-auto px-4">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Everything You Need for a Smooth Journey</h2>
-      <p class="text-lg text-slate-600">From live location updates to platform tickets, we simplify every step of your train travel experience.</p>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="contact-inner">
+      <div class="contact-info">
+        <span class="section-label">📬 Get In Touch</span>
+        <h2>We'd love to<br>hear from you</h2>
+        <p>Have questions, feedback, or partnership enquiries? Our team is available 7 days a week to help you with anything you need.</p>
+
+        <div class="contact-detail">
+          <div class="contact-icon mail">📧</div>
+          <div class="contact-detail-text">
+            <span>Email Us</span>
+            <a href="mailto:work@trackblink.com">work@trackblink.com</a>
+          </div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-icon phone">📞</div>
+          <div class="contact-detail-text">
+            <span>Call Us</span>
+            <a href="tel:+919630944115">+91-9630944115</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-wrap">
+        <form class="contact-form" onsubmit="return false;">
+          <div class="form-row">
+            <input id="tb-name"    class="form-field" type="text"  placeholder="Your Name"/>
+            <input id="tb-email"   class="form-field" type="email" placeholder="Email Address"/>
+          </div>
+          <input   id="tb-subject" class="form-field" type="text"  placeholder="Subject"/>
+          <textarea id="tb-msg"    class="form-field" placeholder="Your message..."></textarea>
+          <button class="form-submit" type="submit">🚀 Send Message</button>
+        </form>
+      </div>
     </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lgGrad2" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00A850"/>
+            <stop offset="1" stop-color="#00C860"/>
+          </linearGradient>
+          <linearGradient id="pinGrad2" x1="14" y1="8" x2="30" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#C2F0D8"/>
+          </linearGradient>
+        </defs>
+        <rect width="44" height="44" rx="12" fill="url(#lgGrad2)"/>
+        <path d="M22 7C17.03 7 13 11.03 13 16C13 22.5 22 37 22 37C22 37 31 22.5 31 16C31 11.03 26.97 7 22 7Z" fill="url(#pinGrad2)"/>
+        <circle cx="22" cy="16" r="4" fill="#FF6B00"/>
+        <path d="M28.5 9.5 Q33 13 33 18" stroke="rgba(255,255,255,0.55)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <path d="M30.5 7 Q37 12 37 20" stroke="rgba(255,255,255,0.30)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <circle cx="35" cy="10" r="4" fill="#FF6B00"/>
+        <circle cx="35" cy="10" r="2.2" fill="#fff"/>
+      </svg>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Feature 1 -->
-      <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow border border-slate-100">
-        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-          <i data-lucide="map-pin" class="w-6 h-6 text-blue-600"></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">Real-Time Tracking</h3>
-        <p class="text-slate-600 mb-6">Track your train's exact location with GPS precision. Know exactly when you will reach your destination.</p>
-        <div class="rounded-xl overflow-hidden bg-slate-100 h-48">
-           <img data-ai="generate" data-slot="feature-tracking-ui" data-prompt="Close up of a mobile screen showing a train route map with live location pin and time remaining" data-ar="3:2" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/features/feature-tracking-ui-46c5885c963e4c859b38d8f313ee79e9.png" alt="Tracking UI" width="1200" height="900" class="w-full h-full object-cover" loading="lazy" decoding="async" fetchpriority="auto">
-        </div>
-      </div>
+      <span style="font-family:'Merriweather Sans',sans-serif;font-weight:800;font-size:.95rem;color:#fff;">TrackBlink</span>
+    </div>
 
-      <!-- Feature 2 -->
-      <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow border border-slate-100">
-        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
-          <i data-lucide="bell-ring" class="w-6 h-6 text-orange-600"></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">Smart Alerts</h3>
-        <p class="text-slate-600 mb-6">Set alarms for arrival and departure. Never sleep through your station or miss a connection again.</p>
-        <div class="rounded-xl overflow-hidden bg-slate-100 h-48">
-           <img data-ai="generate" data-slot="feature-alerts-icon" data-prompt="3D illustration of a notification bell icon with a train background, symbolizing travel alerts" data-ar="3:2" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/features/feature-alerts-icon-b9b1dcef77144480874fcf2bf95027f4.png" alt="Alerts Illustration" width="1200" height="900" class="w-full h-full object-cover" loading="lazy" decoding="async" fetchpriority="auto">
-        </div>
-      </div>
+    <p>© 2025 TrackBlink. All rights reserved. Built for Indian Railways travellers.</p>
 
-      <!-- Feature 3 -->
-      <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow border border-slate-100">
-        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-          <i data-lucide="ticket" class="w-6 h-6 text-purple-600"></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">PNR &#x26; Platform Tickets</h3>
-        <p class="text-slate-600">Check PNR prediction odds instantly. Book platform tickets digitally to avoid long queues at the station.</p>
-        <ul class="mt-4 space-y-2">
-            <li class="flex items-center text-sm text-slate-500">
-                <i data-lucide="check" class="w-4 h-4 mr-2 text-green-500"></i> Confirmation Prediction
-            </li>
-            <li class="flex items-center text-sm text-slate-500">
-                <i data-lucide="check" class="w-4 h-4 mr-2 text-green-500"></i> Paperless Entry
-            </li>
-        </ul>
-      </div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#contact">Contact</a>
     </div>
-  </div>
-</section><section class="py-20 bg-white">
-  <div class="container mx-auto px-4">
-    <div class="flex flex-col lg:flex-row items-center gap-16">
-      <div class="w-full lg:w-1/2 order-2 lg:order-1">
-        <img data-ai="generate" data-slot="food-delivery-meal" data-prompt="A delicious, hygienic Indian thali meal being served on a train table near a window with a view, high quality food photography" data-ar="4:3" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/food_delivery/food-delivery-meal-396e0a47a83144448d7d536e67494432.png" alt="Food on Train" width="1200" height="900" class="w-full rounded-3xl shadow-xl object-cover" loading="lazy" decoding="async" fetchpriority="auto">
-      </div>
-      <div class="w-full lg:w-1/2 order-1 lg:order-2">
-        <div class="inline-block px-4 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-4">
-          Food on Train
-        </div>
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-          Hot &#x26; Hygienic Meals Delivered to Your Seat
-        </h2>
-        <p class="text-lg text-slate-600 mb-8">
-          Don't settle for pantry food. Order from top-rated restaurants along your route. Whether you crave a full thali, pizza, or snacks, we deliver it right to your berth.
-        </p>
-        <div class="space-y-4">
-          <div class="flex items-start">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mt-1">
-              <i data-lucide="utensils" class="w-5 h-5 text-green-600"></i>
-            </div>
-            <div class="ml-4">
-              <h4 class="text-lg font-semibold text-slate-900">Wide Variety</h4>
-              <p class="text-slate-500">Choose from 500+ restaurants and various cuisines.</p>
-            </div>
-          </div>
-          <div class="flex items-start">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mt-1">
-              <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
-            </div>
-            <div class="ml-4">
-              <h4 class="text-lg font-semibold text-slate-900">Hygienic &#x26; Safe</h4>
-              <p class="text-slate-500">Contactless delivery from FSSAI approved partners.</p>
-            </div>
-          </div>
-        </div>
-        <div class="mt-10">
-          <a href="#" class="inline-flex items-center font-semibold text-orange-600 hover:text-orange-700">
-            View Menu 
-            <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section><section class="py-20 bg-white">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Smart Travel Tools</h2>
-      <p class="text-lg text-slate-600 max-w-2xl mx-auto">Eliminate uncertainty and skip the queues with our integrated PNR prediction and digital ticketing features.</p>
-    </div>
-    <div class="grid md:grid-cols-2 gap-12 items-start">
-      <!-- PNR Status Column -->
-      <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 h-full flex flex-col">
-        <div class="mb-6">
-          <h3 class="text-2xl font-bold text-slate-900 mb-3">PNR Status &#x26; Prediction</h3>
-          <p class="text-slate-600">Will your ticket get confirmed? Don't rely on guesswork. Get real-time PNR status updates and AI-backed confirmation probability predictions instantly.</p>
-        </div>
-        <div class="mt-auto">
-          <img data-ai="generate" data-slot="pnr-status-screen" data-prompt="Modern smartphone app interface displaying train PNR status with a high probability confirmation graph and train details" data-ar="4:3" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/pnr_tickets/pnr-status-screen-5c641a5556e74083bf4aa741dafe7a1c.png" alt="PNR Status Prediction Interface" width="1200" height="900" class="w-full rounded-xl object-cover shadow-md" loading="lazy" decoding="async" fetchpriority="auto">
-        </div>
-      </div>
-      <!-- Platform Ticket Column -->
-      <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 h-full flex flex-col">
-        <div class="mb-6">
-          <h3 class="text-2xl font-bold text-slate-900 mb-3">Book Platform Tickets Online</h3>
-          <p class="text-slate-600">Avoid the rush at the ticket counter. Book your platform ticket digitally within seconds, scan the QR code at the entry, and walk straight in.</p>
-        </div>
-        <div class="mt-auto">
-          <img data-ai="generate" data-slot="platform-ticket-qr" data-prompt="Close up of a hand holding a smartphone displaying a QR code platform ticket at a busy railway station entrance" data-ar="4:3" src="https://cdn.ailandingpage.ai/landingpage_io/user-generate/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/9178bc9a-10af-4abf-9eaf-e41e1a0c930e/pnr_tickets/platform-ticket-qr-2cfc6457b98c44c19f1ac02156162657.png" alt="Digital Platform Ticket" width="1200" height="900" class="w-full rounded-xl object-cover shadow-md" loading="lazy" decoding="async" fetchpriority="auto">
-        </div>
-      </div>
-    </div>
-  </div>
-</section><section class="py-20 bg-slate-50">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Trusted by Millions of Travelers</h2>
-      <p class="text-lg text-slate-600">See why daily commuters and long-distance travelers rely on us for their journeys.</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-8">
-      <!-- Review 1 -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl">R</div>
-          <div>
-            <h4 class="font-bold text-slate-900">Rahul Sharma</h4>
-            <p class="text-sm text-slate-500">Frequent Traveler</p>
-          </div>
-        </div>
-        <p class="text-slate-700 italic">"The live tracking is incredibly accurate. The app alerted me about a 2-hour delay before the station even announced it. Saved me so much waiting time!"</p>
-      </div>
-      <!-- Review 2 -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-xl">P</div>
-          <div>
-            <h4 class="font-bold text-slate-900">Priya Desai</h4>
-            <p class="text-sm text-slate-500">Foodie on Wheels</p>
-          </div>
-        </div>
-        <p class="text-slate-700 italic">"I was skeptical about ordering food on the train, but the thali arrived piping hot right at my seat in Kanpur. The hygiene and taste were spot on."</p>
-      </div>
-      <!-- Review 3 -->
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">A</div>
-          <div>
-            <h4 class="font-bold text-slate-900">Amit Verma</h4>
-            <p class="text-sm text-slate-500">Business Commuter</p>
-          </div>
-        </div>
-        <p class="text-slate-700 italic">"Booking a platform ticket used to be a headache. Now I just do it on the app while walking into the station. The PNR prediction is also very reliable."</p>
-      </div>
-    </div>
-  </div>
-</section><section class="py-20 bg-white">
-  <div class="container mx-auto px-4 max-w-3xl">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
-      <p class="text-lg text-slate-600">Answers to common queries about tracking, food orders, and tickets.</p>
-    </div>
-    <div class="space-y-4">
-      <!-- Q1 -->
-      <details class="group bg-slate-50 rounded-xl p-6 [&#x26;_summary::-webkit-details-marker]:hidden">
-        <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-slate-900 font-semibold text-lg">
-          How accurate is the live train tracking?
-          <span class="shrink-0 rounded-full bg-white p-1.5 text-slate-900 sm:p-3 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 transition duration-300 group-open:-rotate-180" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-          </span>
-        </summary>
-        <p class="mt-4 leading-relaxed text-slate-600">
-          Our tracking system combines official railway data with real-time GPS crowdsourcing from users on the train. This ensures highly accurate location updates and delay predictions, often faster than station displays.
-        </p>
-      </details>
-      <!-- Q2 -->
-      <details class="group bg-slate-50 rounded-xl p-6 [&#x26;_summary::-webkit-details-marker]:hidden">
-        <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-slate-900 font-semibold text-lg">
-          What happens if my food order isn't delivered?
-          <span class="shrink-0 rounded-full bg-white p-1.5 text-slate-900 sm:p-3 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 transition duration-300 group-open:-rotate-180" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-          </span>
-        </summary>
-        <p class="mt-4 leading-relaxed text-slate-600">
-          We track train delays to adjust delivery timings. However, in the rare case that a vendor misses your train, we process an automatic, full refund to your original payment method immediately.
-        </p>
-      </details>
-      <!-- Q3 -->
-      <details class="group bg-slate-50 rounded-xl p-6 [&#x26;_summary::-webkit-details-marker]:hidden">
-        <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-slate-900 font-semibold text-lg">
-          Are digital platform tickets valid?
-          <span class="shrink-0 rounded-full bg-white p-1.5 text-slate-900 sm:p-3 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 transition duration-300 group-open:-rotate-180" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-          </span>
-        </summary>
-        <p class="mt-4 leading-relaxed text-slate-600">
-          Yes, digital platform tickets booked via our app are fully authorized. You can simply show the active ticket screen or QR code to the Ticket Examiner (TTE) or security staff at the station entry.
-        </p>
-      </details>
-    </div>
-  </div>
-</section><section class="py-24 bg-indigo-900 text-white relative overflow-hidden">
-  <div class="absolute inset-0 opacity-10 pattern-grid-lg"></div>
-  <div class="container mx-auto px-4 relative z-10 text-center">
-    <h2 class="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-      Your Smartest Travel Companion Awaits
-    </h2>
-    <p class="text-lg md:text-xl text-indigo-200 mb-10 max-w-2xl mx-auto">
-      Join millions of passengers enjoying real-time tracking, PNR status updates, and seat-side food delivery. Experience the future of train travel today.
-    </p>
-    <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-      <a href="#" class="inline-flex items-center justify-center px-8 py-4 bg-white text-indigo-900 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-apple mr-3 fill-current"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"></path><path d="M10 2c1 .5 2 2 2 5"></path></svg>
-        <span>Download on App Store</span>
-      </a>
-      <a href="#" class="inline-flex items-center justify-center px-8 py-4 bg-indigo-600 text-white border border-indigo-500 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play mr-3 fill-current"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-        <span>Get it on Google Play</span>
-      </a>
-    </div>
-    <p class="mt-8 text-sm text-indigo-300">
-      Available for iOS 14+ and Android 8.0+
-    </p>
-  </div>
-</section></main>
+  </footer>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-200 py-12">
-        <div class="container mx-auto px-4 md:px-6">
-            <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
-                <div class="space-y-4">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="train-front" class="h-6 w-6 text-blue-400"></i>
-                        <span class="text-xl font-bold text-white">TrackBlink</span>
-                    </div>
-                    <p class="text-sm text-slate-400">
-                        Your ultimate travel companion for Indian Railways. Track trains, order food, and travel smart.
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="#" class="text-slate-400 hover:text-white"><i data-lucide="twitter" class="h-5 w-5"></i></a>
-                        <a href="#" class="text-slate-400 hover:text-white"><i data-lucide="facebook" class="h-5 w-5"></i></a>
-                        <a href="#" class="text-slate-400 hover:text-white"><i data-lucide="instagram" class="h-5 w-5"></i></a>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Services</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-blue-400">Live Train Status</a></li>
-                        <li><a href="#" class="hover:text-blue-400">PNR Prediction</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Food on Train</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Platform Tickets</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Company</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-blue-400">About Us</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Careers</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Blog</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Legal</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-blue-400">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Terms of Service</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Cookie Policy</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mt-12 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-                © 2023 TrackBlink Technologies. All rights reserved.
-            </div>
-        </div>
-    </footer>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+    const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+    const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
+    function showToast(message, type) {
+      const existing = document.getElementById('tb-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.id = 'tb-toast';
+      toast.textContent = message;
+      Object.assign(toast.style, {
+        position:'fixed', bottom:'32px', right:'32px', zIndex:'9999',
+        padding:'16px 28px', borderRadius:'14px',
+        fontFamily:"'Inter', sans-serif", fontSize:'0.95rem', fontWeight:'600',
+        color:'#fff', background: type === 'success' ? '#00A850' : '#FF6B00',
+        boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
+        transform:'translateY(20px)', opacity:'0',
+        transition:'all 0.35s ease', maxWidth:'360px',
+      });
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.transform='translateY(0)'; toast.style.opacity='1'; });
+      setTimeout(() => {
+        toast.style.transform='translateY(20px)'; toast.style.opacity='0';
+        setTimeout(() => toast.remove(), 400);
+      }, 4500);
+    }
 
-</body></html>
+    const form = document.querySelector('.contact-form');
+    const submitBtn = form.querySelector('.form-submit');
+    const nameInput    = document.getElementById('tb-name');
+    const emailInput   = document.getElementById('tb-email');
+    const subjectInput = document.getElementById('tb-subject');
+    const msgInput     = document.getElementById('tb-msg');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name    = nameInput.value.trim();
+      const email   = emailInput.value.trim();
+      const subject = subjectInput.value.trim();
+      const message = msgInput.value.trim();
+
+      if (!name || !email || !message) { showToast('⚠️ Please fill in all required fields.', 'error'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('⚠️ Please enter a valid email address.', 'error'); return; }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Sending...';
+      submitBtn.style.opacity = '0.75';
+
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          from_name:  name,
+          from_email: email,
+          subject:    subject || 'New Message from TrackBlink Website',
+          message:    message,
+          to_email:   'work@trackblink.com',
+          reply_to:   email,
+        });
+        showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
+        form.reset();
+      } catch (err) {
+        console.error('EmailJS error:', err);
+        showToast('❌ Failed to send. Email us directly: work@trackblink.com', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Send Message';
+        submitBtn.style.opacity = '1';
+      }
+    });
+  </script>
+
+</body>
+</html>
